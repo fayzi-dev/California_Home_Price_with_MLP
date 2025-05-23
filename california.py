@@ -2,6 +2,8 @@ import torch
 from torch import nn, optim
 import matplotlib.pyplot as plt
 import pandas as pd
+from torch.utils.data import DataLoader, TensorDataset
+
 
 data_train = pd.read_csv('train.csv')
 x_train = data_train.drop('MedHouseVal', axis=1)
@@ -37,3 +39,45 @@ print(x_test.mean(dim=0))#tensor([ 0.0174,  0.0059,  0.0357,  0.0232, -0.0412, -
 print(x_test.std(dim=0))#tensor([1.0173, 0.9952, 1.3752, 1.2463, 0.8829, 0.7154, 0.9926, 0.9963])
 
 #DataLoader
+dataset_train = TensorDataset(x_train, y_train)
+print(dataset_train)#<torch.utils.data.dataset.TensorDataset object at 0x000001A424673520>
+# print(dataset_train.tensors[0])
+
+Dataloader_train = DataLoader(dataset_train, batch_size=150, shuffle=True)
+print(Dataloader_train)#<torch.utils.data.dataloader.DataLoader object at 0x000001678B9B8730>
+
+# for x_batch, y_batch in Dataloader_train:
+#     print(x_batch.shape,y_batch.shape)#torch.Size([150, 8]) torch.Size([150])
+#     break
+
+for i,(x_batch, y_batch) in enumerate(Dataloader_train):
+    print(i,x_batch.shape,y_batch.shape)
+
+print(Dataloader_train.__len__())#111
+
+
+# x_b , y_b =next(iter(Dataloader_train))
+# print(x_b.shape,y_b.shape)
+
+
+dataset_test = TensorDataset(x_test, y_test)
+# print(dataset_test)
+Dataloader_test = DataLoader(dataset_test, batch_size=300, shuffle=False)
+# print(Dataloader_test)
+
+
+#Model Define
+num_features = 8
+out_features = 1
+
+model = nn.Sequential(nn.Linear(num_features, 64),
+                      nn.ReLU(),
+                      nn.Linear(64, 32),
+                      nn.ReLU(),
+                      nn.Linear(32, out_features))
+
+# print(model)
+
+# Loss & Optimizer
+loss_function = nn.MSELoss()
+optimizer = optim.SGD(model.parameters(), lr=0.001)
