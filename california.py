@@ -81,7 +81,7 @@ loss_function = nn.MSELoss()
 optimizer = optim.SGD(model.parameters(), lr=0.001)
 
 # My Train Loop
-num_epochs = 150
+num_epochs = 50
 for epoch in range(num_epochs):
     loss_train = 0
     for x_batch, y_batch in Dataloader_train:
@@ -97,9 +97,23 @@ for epoch in range(num_epochs):
     loss_test = 0
     for x_batch, y_batch in Dataloader_test:
         yp = model(x_batch)
-        loss =loss_function(yp.squeeze(), y_batch)
+        loss = loss_function(yp.squeeze(), y_batch)
         loss_test += loss
 
     print(f'Epoch:{epoch} : Loss_Test :{loss_test / len(Dataloader_test)}')
 
+# Predict
+yp_total = []
+yt_total = []
+with torch.no_grad():
+    for x_batch, y_batch in Dataloader_test:
+        yp = model(x_batch)
+        yp_total.append(yp.squeeze())
+        yt_total.append(y_batch)
 
+yp_total = torch.cat(yp_total)
+yt_total = torch.cat(yt_total)
+
+from sklearn.metrics import r2_score
+r2 = r2_score(yt_total, yp_total)#
+print(r2)# 0.6267677330963726
