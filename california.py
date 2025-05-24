@@ -82,6 +82,8 @@ optimizer = optim.SGD(model.parameters(), lr=0.001)
 
 # My Train Loop
 num_epochs = 50
+loss_train_hist=[]
+loss_test_hist=[]
 for epoch in range(num_epochs):
     loss_train = 0
     for x_batch, y_batch in Dataloader_train:
@@ -91,8 +93,12 @@ for epoch in range(num_epochs):
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()
+    loss_total_train=loss_train/len(Dataloader_train)
+    # print(f'Epoch:{epoch} : Loss_Train :{loss_total_train}')
+    loss_train_hist.append(loss_total_train.detach().numpy())
+    # print(loss_train_hist)
 
-    print(f'Epoch:{epoch} : Loss_Train :{loss_train / len(Dataloader_train)}')
+
 
     loss_test = 0
     for x_batch, y_batch in Dataloader_test:
@@ -100,7 +106,11 @@ for epoch in range(num_epochs):
         loss = loss_function(yp.squeeze(), y_batch)
         loss_test += loss
 
-    print(f'Epoch:{epoch} : Loss_Test :{loss_test / len(Dataloader_test)}')
+    loss_total_test = loss_test/len(Dataloader_test)
+    # print(f'Epoch:{epoch} : Loss_Test :{loss_total_test}')
+    loss_test_hist.append(loss_total_test.detach().numpy())
+    # print(loss_test_hist)
+
 
 # Predict
 yp_total = []
@@ -117,3 +127,17 @@ yt_total = torch.cat(yt_total)
 from sklearn.metrics import r2_score
 r2 = r2_score(yt_total, yp_total)#
 print(r2)# 0.6267677330963726
+
+
+
+# plot Learning curve
+fig,ax = plt.subplots(figsize=(5,5))
+
+ax.plot(range(num_epochs), loss_train_hist,'r-', label='Training Loss')
+ax.plot(range(num_epochs), loss_test_hist,'b-', label='Test Loss')
+
+ax.set_xlabel('Epochs')
+ax.set_ylabel('Loss')
+ax.grid(True)
+ax.legend()
+plt.show()
