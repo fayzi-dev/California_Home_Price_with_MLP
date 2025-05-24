@@ -122,7 +122,9 @@ with torch.no_grad():
         yt_total.append(y_batch)
 
 yp_total = torch.cat(yp_total)
+print(yp_total.shape)
 yt_total = torch.cat(yt_total)
+print(yt_total.shape)
 
 from sklearn.metrics import r2_score
 r2 = r2_score(yt_total, yp_total)#
